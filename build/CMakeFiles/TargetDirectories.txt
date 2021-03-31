@@ -1,0 +1,9 @@
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/NightlyMemoryCheck.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/Experimental.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/Continuous.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/Nightly.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/D-Server.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/PACKAGE.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/RUN_TESTS.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/hanse/OneDrive/Skrivebord/D server/build/CMakeFiles/ZERO_CHECK.dir
