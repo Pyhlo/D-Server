@@ -1,19 +1,22 @@
+#include "database.hpp"
+
 #include <iostream>
-#include <string>
+//#include <string>
 #include <fstream>
 #include <array>
-#include <vector>
+//#include <vector>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
-//#include <bits/stdc++.h> //apparently this is needed for vectors
+
 //#define WINVER 0x0500
+//#include <unistd.h> //this is a mingw only library don't use this shit
+
+
 #include <windows.h>
-//#include <unistd.h> //this should work even if the linter says there's an error
-#include <bsoncxx/json.hpp>
-#include <mongocxx/client.hpp> //ADD CPLUS_INCLUDE_PATH AND LIBRARY_PATH TO SYSTEM VARIABLES
 
 using std::string;
+
 std::string SERVERNAME = "z"; //change this to d
 
 bool doesExist(const std::string& name) {
@@ -31,7 +34,7 @@ void start_countdown(int seconds) {
         if (i == 1) {
             std::cout << "Starting in " << i << " second!" << std::endl;
             Sleep(1000);
-            continue; 
+            continue;
         }
         std::cout << "Starting in " << i << " seconds!" << std::endl;
         Sleep(1000);
@@ -77,6 +80,20 @@ void pressKey(WORD vkey) {
     //do shit here
 }*/
 
+/*int writeToDB(std::vector<std::string> names, int state) { //state 1 = plus names, state 2 = minus names
+    mongocxx::instance inst{};
+    //mongocxx::client conn{mongocxx::uri{"mongodb+srv://D-USER:9ahiXYAPPPHQfVOS@d-server-cluster.okdyz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"}};
+    //mongocxx::database db = conn["rates"];
+    if (state == 1) {
+
+    } else if (state == 2) {
+
+    } else {
+        std::cout << "DATABASE WRITE ERROR: STATE CANNOT BE " << state << std::endl;
+        return -1;
+    }
+    return 0;
+}*/
 void writeWord(std::string word) {
     //std::cout << std::hex << number << std::endl;
     //pressKey(b);
@@ -107,8 +124,22 @@ std::vector<std::string> string_split(const std::string& str) {
     return r;
 }
 
+const char* WinGetEnv(const char* name)
+{
+    const DWORD buffSize = 65535;
+    static char buffer[buffSize];
+    if (GetEnvironmentVariableA(name, buffer, buffSize))
+    {
+        return buffer;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 std::vector<std::string> get_names(std::string path, int get_value) {
-    std::cout << "GETTING NAMES FROM " << path << std::endl;
+    std::cout << "FETCHING NAMES FROM " << path << std::endl;
     std::ifstream instream(path);
     std::string value;
     std::string text;
@@ -138,31 +169,54 @@ std::vector<std::string> get_names(std::string path, int get_value) {
     //std::cout << plus_names_v[4]; //plus_names_v[4] is when the names start comming
     if (get_value == 1) {
         return plus_names_v;
-    } else if (get_value == 2) {
+    }
+    else if (get_value == 2) {
         return minus_names_v;
-    } else { //the get_value says which value u want, 1 is plus rates, 2 is minus rates
+    }
+    else { //the get_value says which value u want, 1 is plus rates, 2 is minus rates
         return plus_names_v;
     }
 }
 int main() {
-    std::string logs_folder = getenv("APPDATA");
+    std::string logs_folder = WinGetEnv("APPDATA");//getenv("APPDATA"); //the WinGetEnv is not deprecated and should be more safe for some reason
     logs_folder = logs_folder + "\\.minecraft\\logs";
-    if (doesExist(logs_folder+"\\latest.log")) {
-        std::cout << "WARNING: THIS WILL CLEAR YOUR latest.log IN THE FOLDER " << logs_folder+"\\latest.log" << std::endl; 
+    if (doesExist(logs_folder + "\\latest.log")) {
+        std::cout << "WARNING: THIS WILL CLEAR YOUR latest.log IN THE FOLDER " << logs_folder + "\\latest.log" << std::endl;
         std::cout << "Please have your minecraft selected and your chat open!" << std::endl;
         start_countdown(3);
-        clearFile(logs_folder+"\\latest.log");
+        clearFile(logs_folder + "\\latest.log");
         writeWord("/rate s s " + SERVERNAME);
         pressKey(0x0D); //will press ENTER / RETURN KEY
         Sleep(500);
-        std::vector<std::string> plus_rates = get_names(logs_folder+"\\latest.log", 1);
-        std::vector<std::string> minus_rates = get_names(logs_folder+"\\latest.log", 2);
+        database_obj db;
+        std::vector<std::string> plus_rates = get_names(logs_folder + "\\latest.log", 1);
+        std::vector<std::string> minus_rates = get_names(logs_folder + "\\latest.log", 2);
+        Sleep(500);
+        std::cout << "Sending rates to the database..." << std::endl;
+        int output = db.send_to_db(plus_rates, 1, SERVERNAME);
+        if (output == 0) {
+            std::cout << "The plus rates are now successfully stored in the database!" << std::endl;
+        }
+        else {
+            std::cout << "Something went horribly wrong when trying to store the plus rates in the database, please report this to Pyhlo." << std::endl;
+        }
+        int output2 = db.send_to_db(minus_rates, 2, SERVERNAME);
+        if (output2 == 0) {
+            std::cout << "The minus rates are now successfully stored in the database!" << std::endl;
+        }
+        else {
+            std::cout << "Something went horribly wrong when trying to store the minus rates in the database, please report this to Pyhlo." << std::endl;
+        }
+        
+        std::cout << "Closing in 5 seconds..." << std::endl;
+        Sleep(5000);
         //get_names(logs_folder+"\\latest.log");
         //sleep(3);
         //pressSlash(); //it turns out you actually just can juse / in the writeWord(str);
-        
-        
-    } else {
+
+
+    }
+    else {
         std::cout << "The file " << logs_folder + "\\latest.log" << " doesn't exist, stopping..." << std::endl;
         Sleep(5000);
         return -1;
