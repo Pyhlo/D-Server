@@ -23,7 +23,7 @@ using std::string;
 
 class database_obj {
 	mongocxx::instance inst{};
-	mongocxx::client conn{ mongocxx::uri{"mongodb+srv://D-USER:9ahiXYAPPPHQfVOS@d-server-cluster.okdyz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"} };
+	mongocxx::client conn{ mongocxx::uri{"MONGODB URI"} };
 	public: int send_to_db(const std::vector<string> names, int state, std::string servername) {
 		mongocxx::database db = conn["rates"];
 		mongocxx::collection coll = db[servername];
